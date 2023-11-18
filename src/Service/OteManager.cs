@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using OteCr;
+using Service.Interfaces;
+using System.Diagnostics;
 using System.Text;
 
 namespace OtePrices
@@ -7,7 +9,7 @@ namespace OtePrices
     /// <summary>
     /// OteManager
     /// </summary>
-    /// <seealso cref="OtePrices.IOteManager" />
+    /// <seealso cref="Service.Interfaces.IOteManager" />
     public class OteManager : IOteManager
     {
         private readonly ICnbService _cnbService;
@@ -33,12 +35,12 @@ namespace OtePrices
             var rateTask = _cnbService.GetRate(DateOnly.FromDateTime(DateTime.Today));
             var prices = await _oteCrService.GetDamPrice(date);
 
-            Console.WriteLine($"Prices for date: {date:dd.MM.yyyy}");
+            Debug.WriteLine($"Prices for date: {date:dd.MM.yyyy}");
             var rate = await rateTask;
             foreach (var price in prices)
             {
                 decimal priceCalculated = Math.Round(price.Price * rate / 1000, 2, MidpointRounding.ToEven);
-                Console.WriteLine($"{price.Hour} - {priceCalculated} CZK / kWh");
+                Debug.WriteLine($"{price.Hour} - {priceCalculated} CZK / kWh");
             }
         }
 
@@ -59,7 +61,7 @@ namespace OtePrices
                 sb.AppendLine($"{participant.Id} - {participant.Ean} - {participant.Company}");
             }
 
-            Console.WriteLine(sb.ToString());
+            Debug.WriteLine(sb.ToString());
 
             return orderedByName;
         }

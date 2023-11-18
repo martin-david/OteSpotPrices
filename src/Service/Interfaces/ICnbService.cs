@@ -1,4 +1,4 @@
-﻿namespace OtePrices
+﻿namespace Service.Interfaces
 {
     /// <summary>
     /// ICnbService

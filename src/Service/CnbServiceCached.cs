@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Service.Interfaces;
+using System.Globalization;
 using System.Text;
 
 namespace OtePrices
@@ -8,7 +10,7 @@ namespace OtePrices
     /// <summary>
     /// CnbServiceCached
     /// </summary>
-    /// <seealso cref="OtePrices.ICnbService" />
+    /// <seealso cref="Service.Interfaces.ICnbService" />
     public class CnbServiceCached : ICnbService
     {
         private readonly ILogger<CnbServiceCached> _logger;
@@ -45,14 +47,14 @@ namespace OtePrices
             {
                 _logger.LogInformation($"Cache is null for cacheKey: {cacheKey}");
                 rate = await _cnbService.GetRate(date, cancellationToken);
-                byte[] data = Encoding.UTF8.GetBytes(rate.ToString());
+                byte[] data = Encoding.UTF8.GetBytes(rate.ToString(CultureInfo.InvariantCulture));
                 await _cache.SetAsync(cacheKey, data);
             }
             else
             {
                 _logger.LogInformation($"[{cacheKey}] {value}");
                 string rateString = Encoding.UTF8.GetString(value);
-                rate = decimal.Parse(rateString);
+                rate = decimal.Parse(rateString, CultureInfo.InvariantCulture);
             }
 
             return rate;

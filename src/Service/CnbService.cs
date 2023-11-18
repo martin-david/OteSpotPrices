@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Service.Interfaces;
 using System.Globalization;
 
 namespace OtePrices
@@ -6,7 +7,7 @@ namespace OtePrices
     /// <summary>
     /// CnbService
     /// </summary>
-    /// <seealso cref="OtePrices.ICnbService" />
+    /// <seealso cref="Service.Interfaces.ICnbService" />
     public class CnbService : ICnbService
     {
         private const string CnbRatesUrl = "https://www.cnb.cz/cs/financni-trhy/devizovy-trh/kurzy-devizoveho-trhu/kurzy-devizoveho-trhu/denni_kurz.txt?date={0}";

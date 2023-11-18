@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using OteCr;
+using Service.Interfaces;
 
 namespace OtePrices
 {
     /// <summary>
     /// OteCrService
     /// </summary>
-    /// <seealso cref="OtePrices.IOteCrService" />
+    /// <seealso cref="Service.Interfaces.IOteCrService" />
     public class OteCrService : IOteCrService
     {
         private readonly ILogger<OteCrService> _logger;

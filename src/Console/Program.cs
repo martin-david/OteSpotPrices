@@ -5,6 +5,7 @@ using OteCr;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
 using Polly.Extensions.Http;
+using Service.Interfaces;
 using System.Net;
 
 namespace OtePrices
@@ -18,7 +19,7 @@ namespace OtePrices
             builder.Services.AddLogging();
             builder.Services.AddDistributedMemoryCache();
 
-            builder.Services.AddHttpClient<ICnbService, CnbServiceCached>()
+            builder.Services.AddHttpClient<ICnbService, CnbService>()
                 .AddPolicyHandler(GetRetryPolicy())
                 .AddPolicyHandler(GetCircuitBreakerPolicy());
             

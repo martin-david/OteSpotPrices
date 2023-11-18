@@ -1,6 +1,6 @@
 ﻿using OteCr;
 
-namespace OtePrices
+namespace Service.Interfaces
 {
     public interface IOteCrService
     {

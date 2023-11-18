@@ -1,4 +1,4 @@
-﻿namespace OtePrices
+﻿namespace Service.Interfaces
 {
     public interface IOteManager
     {
