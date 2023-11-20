@@ -4,3 +4,4 @@ The price index is consumed via official OTE WCF Service and calculated from EUR
 Currency calculation is done via [Czech National Bank](https://www.cnb.cz/en/).
 
 ![Workflow status badge](https://github.com/martin-david/OteSpotPrices/actions/workflows/build.yml/badge.svg)
+[![codecov](https://codecov.io/github/martin-david/OteSpotPrices/graph/badge.svg?token=2K3534OXTC)](https://codecov.io/github/martin-david/OteSpotPrices)
