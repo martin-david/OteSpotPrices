@@ -32,7 +32,7 @@ namespace OtePrices
         /// <param name="date">The date.</param>
         public async Task GetOtePrices(DateOnly date)
         {
-            var rateTask = _cnbService.GetRate(DateOnly.FromDateTime(DateTime.Today));
+            var rateTask = _cnbService.GetRate(date);
             var prices = await _oteCrService.GetDamPrice(date);
 
             Debug.WriteLine($"Prices for date: {date:dd.MM.yyyy}");
