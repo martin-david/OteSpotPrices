@@ -25,7 +25,7 @@ namespace OtePrices.Tests
                 new () { Price = 854m, Hour = 3 },
             }));
 
-            var oteManager = new OteManager(cnbService, oteCrService);
+            var oteManager = new OteManager(cnbService, oteCrService, null);
             await oteManager.GetOtePrices(DateOnly.FromDateTime(dateTime));
             await cnbService.Received(1).GetRate(date);
             await oteCrService.Received(1).GetDamPrice(date);
@@ -45,7 +45,7 @@ namespace OtePrices.Tests
                 }
             }));
 
-            var oteManager = new OteManager(null, oteCrService);
+            var oteManager = new OteManager(null, oteCrService, null);
             await oteManager.GetMarketParticipants();
             await oteCrService.Received(1).GetRegisteredMarketParticipants();
         }
