@@ -1,8 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Service
+﻿namespace Service
 {
-    [ExcludeFromCodeCoverage]
     public sealed class CosmosOptions
     {
         public string ConnectionString { get; set; }

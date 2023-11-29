@@ -3,11 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Service.Infrastructure.EntityConfigurations;
 using Service.Model;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Service.Infrastructure
 {
-    [ExcludeFromCodeCoverage]
     public class ServiceDbContext(DbContextOptions<ServiceDbContext> options,
         IOptions<CosmosOptions> cosmosOptions) : DbContext(options)
     {
