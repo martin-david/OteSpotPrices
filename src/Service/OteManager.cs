@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using OteCr;
-using Service.Infrastructure;
 using Service.Interfaces;
 using Service.Model;
+using Service.Repository;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
@@ -15,28 +15,11 @@ namespace OtePrices
     /// OteManager
     /// </summary>
     /// <seealso cref="Service.Interfaces.IOteManager" />
-    public class OteManager : IOteManager
+    public class OteManager([FromKeyedServices(nameof(CnbServiceCached))] ICnbService cnbService,
+        IOteCrService oteCrService,
+        IServiceRepository<OtePrice> otePricesRepository) : IOteManager
     {
         private static readonly JsonSerializerOptions JsonSerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
-
-        private readonly ICnbService _cnbService;
-        private readonly IOteCrService _oteCrService;
-        private readonly ServiceDbContext _serviceDbContext;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OteManager" /> class.
-        /// </summary>
-        /// <param name="cnbService">The CNB service.</param>
-        /// <param name="oteCrService">The ote cr service.</param>
-        /// <param name="serviceDbContext">The service database context.</param>
-        public OteManager([FromKeyedServices(nameof(CnbServiceCached))] ICnbService cnbService,
-            IOteCrService oteCrService,
-            ServiceDbContext serviceDbContext)
-        {
-            _cnbService = cnbService;
-            _oteCrService = oteCrService;
-            _serviceDbContext = serviceDbContext;
-        }
 
         public async Task<List<OtePrice>> GetOtePrices(DateOnly startDate, DateOnly endDate)
         {
@@ -66,8 +49,8 @@ namespace OtePrices
         /// <returns></returns>
         public async Task<List<OtePrice>> GetOtePrices(DateOnly date)
         {
-            var rateTask = _cnbService.GetRate(date);
-            var prices = await _oteCrService.GetDamPrice(date);
+            var rateTask = cnbService.GetRate(date);
+            var prices = await oteCrService.GetDamPrice(date);
 
             Debug.WriteLine($"Prices for date: {date:dd.MM.yyyy}");
             var result = new List<OtePrice>();
@@ -87,7 +70,7 @@ namespace OtePrices
         /// <returns></returns>
         public async Task<GetRutListResponseResultRut[]> GetMarketParticipants()
         {
-            var registeredMarketParticipants = await _oteCrService.GetRegisteredMarketParticipants();
+            var registeredMarketParticipants = await oteCrService.GetRegisteredMarketParticipants();
             var orderedByName = registeredMarketParticipants.Rut.OrderBy(x => x.Company).ToArray();
 
             StringBuilder sb = new StringBuilder();
@@ -105,15 +88,12 @@ namespace OtePrices
 
         public async Task<List<OtePrice>> LoadOtePrices()
         {
-            return await _serviceDbContext.OtePrices
-                .AsNoTracking()
-                .ToListAsync();
+            return await otePricesRepository.GetAll().ToListAsync();
         }
 
         public async Task SaveOtePrices(IEnumerable<OtePrice> otePrices)
         {
-            await _serviceDbContext.AddRangeAsync(otePrices);
-            await _serviceDbContext.SaveChangesAsync();
+            await otePricesRepository.Create(otePrices);
         }
 
         private static DateOnly[] GetDatesBetweenTwoDates(DateOnly startDate, DateOnly endDate) => Enumerable.Range(0, 1 + (int)new DateTime(endDate, new TimeOnly(0, 0)).Subtract(new DateTime(startDate, new TimeOnly(0, 0))).TotalDays)

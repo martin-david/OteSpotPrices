@@ -3,25 +3,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Service.Infrastructure.EntityConfigurations;
 using Service.Model;
-using System.Net;
 
 namespace Service.Infrastructure
 {
-    public class ServiceDbContext : DbContext
+    public class ServiceDbContext(DbContextOptions<ServiceDbContext> options,
+        IOptions<CosmosOptions> cosmosOptions) : DbContext(options)
     {
-        private readonly IOptions<CosmosOptions> _cosmosOptions;
-
-        public ServiceDbContext(DbContextOptions<ServiceDbContext> options,
-            IOptions<CosmosOptions> cosmosOptions) : base(options)
-        {
-            _cosmosOptions = cosmosOptions;
-        }
-
         public DbSet<OtePrice> OtePrices { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
-            optionsBuilder.UseCosmos(_cosmosOptions.Value.ConnectionString,
-                databaseName: _cosmosOptions.Value.DatabaseName,
+            optionsBuilder.UseCosmos(cosmosOptions.Value.ConnectionString,
+                databaseName: cosmosOptions.Value.DatabaseName,
                 options =>
         {
             options.ConnectionMode(ConnectionMode.Direct);
