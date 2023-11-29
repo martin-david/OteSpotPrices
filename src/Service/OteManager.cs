@@ -7,7 +7,6 @@ using Service.Repository;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
-using System.Text.Json;
 
 namespace OtePrices
 {
@@ -19,8 +18,6 @@ namespace OtePrices
         IOteCrService oteCrService,
         IServiceRepository<OtePrice> otePricesRepository) : IOteManager
     {
-        private static readonly JsonSerializerOptions JsonSerializerOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
-
         public async Task<List<OtePrice>> GetOtePrices(DateOnly startDate, DateOnly endDate)
         {
             DateOnly[] dates = GetDatesBetweenTwoDates(startDate, endDate);
