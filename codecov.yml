@@ -1,5 +1,6 @@
 ignore:
   - "**/Reference.cs"
   - "src/Service/CosmosOptions.cs"
-  - "src/Service/Infrastructure/**"
+  - "src/Service/Infrastructure/*
+  - "src/Service/Infrastructure/EntityConfigurations/*"
   - "src/Service/Repository/*"
