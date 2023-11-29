@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Console": {
+      "commandName": "Project",
+      "commandLineArgs": "--startDate=2023-11-28"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
