@@ -14,9 +14,8 @@ using System.Net;
 
 namespace OtePrices
 {
-    public class Program
+    class Program
     {
-        [STAThread]
         public static async Task Main(string[] args)
         {
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
