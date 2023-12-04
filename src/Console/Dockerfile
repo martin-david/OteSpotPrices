@@ -10,12 +10,12 @@ WORKDIR /src
 COPY ["src/Console/Console.csproj", "Console/"]
 RUN dotnet restore "./Console/./Console.csproj"
 COPY . .
-WORKDIR "/src/Console"
-RUN dotnet build "./Console.csproj" -c $BUILD_CONFIGURATION -o /app/build
+#WORKDIR "/src/Console"
+RUN dotnet build "./Console/./Console.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Console.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./Console/./Console.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
