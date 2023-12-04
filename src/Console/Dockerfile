@@ -7,11 +7,10 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY src/Console/Console.csproj Console
-RUN dotnet restore "src/Console/Console.csproj"
-COPY . .
-
-RUN dotnet build "src/Console/Console.csproj" -c $BUILD_CONFIGURATION -o /app/build
+COPY src/Console/Console.csproj ./Console/
+RUN dotnet restore "Console/Console.csproj"
+COPY Console/. ./Console/
+WORKDIR /src/Console
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
