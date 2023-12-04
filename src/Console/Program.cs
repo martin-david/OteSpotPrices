@@ -10,14 +10,13 @@ using Service;
 using Service.Infrastructure;
 using Service.Interfaces;
 using Service.Repository;
-using System.Configuration;
 using System.Net;
 
 namespace OtePrices
 {
-    internal class Program
+    class Program
     {
-        static async Task Main(string[] args)
+        public static async Task Main(string[] args)
         {
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
