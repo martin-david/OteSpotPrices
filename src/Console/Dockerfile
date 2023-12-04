@@ -10,7 +10,7 @@ WORKDIR /src
 COPY src/Console/Console.csproj .
 RUN dotnet restore "Console.csproj"
 COPY . .
-WORKDIR /src/Console
+
 RUN dotnet build "Console.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
