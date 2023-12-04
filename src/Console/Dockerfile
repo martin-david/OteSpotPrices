@@ -7,8 +7,8 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY Console/Console.csproj Console/
-RUN dotnet restore "Console/Console.csproj"
+COPY Console/Console.csproj .
+RUN dotnet restore "Console.csproj"
 COPY . .
 WORKDIR /src/Console
 RUN dotnet build "Console.csproj" -c $BUILD_CONFIGURATION -o /app/build
