@@ -14,7 +14,7 @@ using System.Net;
 
 namespace OtePrices
 {
-    class Program
+    public class Program
     {
         public static async Task Main(string[] args)
         {
