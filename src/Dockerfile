@@ -12,8 +12,6 @@ RUN dotnet restore Console/Console.csproj
 # copy and build app and libraries
 COPY Console/ Console/
 COPY Service/ Service/
-RUN dotnet restore
-
 RUN dotnet build --no-restore -c $BUILD_CONFIGURATION
 
 
