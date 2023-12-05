@@ -2,23 +2,20 @@
 # https://hub.docker.com/_/microsoft-dotnet
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
-WORKDIR /source
 
 # copy csproj and restore as distinct layers
-COPY Console/*.csproj Console/
-COPY Service/*.csproj Service/
-RUN dotnet restore Console/Console.csproj
+COPY src/Console/*.csproj Console/
+COPY src/Service/*.csproj Service/
+RUN dotnet restore src/Console/Console.csproj
 
 # copy and build app and libraries
 COPY Console/ Console/
 COPY Service/ Service/
-WORKDIR /source/Console
-RUN dotnet build --no-restore -c $BUILD_CONFIGURATION
+RUN dotnet build src/Console/Console.csproj --no-restore -c $BUILD_CONFIGURATION
 
 
 FROM build AS publish
-WORKDIR /source/Console
-RUN dotnet publish --no-restore -c $BUILD_CONFIGURATION -o /app
+RUN dotnet publish src/Console --no-restore -c $BUILD_CONFIGURATION -o /app
 
 # final stage/image
 FROM mcr.microsoft.com/dotnet/runtime:8.0
