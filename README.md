@@ -6,3 +6,4 @@ Data are persisted into [Azure Cosmos DB (NoSQL)](https://azure.microsoft.com/en
 
 ![Workflow status badge](https://github.com/martin-david/OteSpotPrices/actions/workflows/build.yml/badge.svg)
 [![codecov](https://codecov.io/github/martin-david/OteSpotPrices/graph/badge.svg?token=2K3534OXTC)](https://codecov.io/github/martin-david/OteSpotPrices)
+![Docker Hub Push](https://github.com/martin-david/OteSpotPrices/actions/workflows/docker_ci.yml/badge.svg)
