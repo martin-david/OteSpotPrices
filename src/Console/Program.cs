@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Azure.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -29,9 +30,7 @@ namespace OtePrices
                 .AddJsonFile($"appsettings.{builder.Environment}.json", true, true)
                 .AddUserSecrets<Program>(true, true);
 
-            builder.Services.AddOptions<CosmosOptions>()
-                .BindConfiguration(nameof(CosmosOptions))
-                .PostConfigure(cosmosOptions => cosmosOptions.ConnectionString = builder.Configuration["OteSpotPrices:ConnectionString"] ?? throw new ArgumentNullException("User Secrets is empty for OteSpotPrices:ConnectionString."));
+            RegisterCosmosDbConnectionString(builder);
 
             builder.Services.AddLogging();
             builder.Services.AddDistributedMemoryCache();
@@ -78,6 +77,31 @@ namespace OtePrices
             //var otePrices = await oteManager.LoadOtePrices();
 
             await host.RunAsync();
+        }
+
+        private static void RegisterCosmosDbConnectionString(IHostApplicationBuilder builder)
+        {
+            string cosmosDbConnectionString;
+
+            if (builder.Environment.IsProduction())
+            {
+                string keyVaultName = builder.Configuration["AzureKeyVault:KeyVaultName"] ?? throw new ArgumentNullException("Missing configuration value for: KeyVaultName");
+
+                builder.Configuration.AddAzureKeyVault(
+                    new Uri($"https://{keyVaultName}.vault.azure.net/"),
+                    new DefaultAzureCredential());
+
+                cosmosDbConnectionString = builder.Configuration["ConnectionString"] ?? throw new ArgumentNullException("Missing configuration value for: ConnectionString in Azure Key Vault.");
+            }
+            else
+            {
+                // Connection string loaded from User Secrets for development environment
+                cosmosDbConnectionString = builder.Configuration["OteSpotPrices:ConnectionString"] ?? throw new ArgumentNullException("User Secrets is empty for OteSpotPrices:ConnectionString.");
+            }
+
+            builder.Services.AddOptions<CosmosOptions>()
+                .BindConfiguration(nameof(CosmosOptions))
+                .PostConfigure(cosmosOptions => cosmosOptions.ConnectionString = cosmosDbConnectionString);
         }
 
         private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
