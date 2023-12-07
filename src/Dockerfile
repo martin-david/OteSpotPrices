@@ -6,13 +6,12 @@ ARG BUILD_CONFIGURATION=Release
 # copy csproj and restore as distinct layers
 COPY src/Console/*.csproj Console/
 COPY src/Service/*.csproj Service/
-RUN dotnet restore src/Console/Console.csproj
+RUN dotnet restore Console/Console.csproj
 
 # copy and build app and libraries
 COPY src/Console/ Console/
 COPY src/Service/ Service/
 RUN dotnet build Console/Console.csproj --no-restore -c $BUILD_CONFIGURATION
-
 
 FROM build AS publish
 RUN dotnet publish Console/Console.csproj --no-restore -c $BUILD_CONFIGURATION -o /app
