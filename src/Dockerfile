@@ -9,8 +9,8 @@ COPY src/Service/*.csproj Service/
 RUN dotnet restore src/Console/Console.csproj
 
 # copy and build app and libraries
-COPY Console/ Console/
-COPY Service/ Service/
+COPY src/Console/ Console/
+COPY src/Service/ Service/
 RUN dotnet build src/Console/Console.csproj --no-restore -c $BUILD_CONFIGURATION
 
 
