@@ -12,6 +12,7 @@ using Service.Infrastructure;
 using Service.Interfaces;
 using Service.Repository;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 
 namespace OtePrices
 {
@@ -86,10 +87,22 @@ namespace OtePrices
             if (builder.Environment.IsProduction())
             {
                 string keyVaultName = builder.Configuration["AzureKeyVault:KeyVaultName"] ?? throw new ArgumentNullException("Missing configuration value for: KeyVaultName");
+                string certThumbprint = builder.Configuration["AzureKeyVault:AzureADCertThumbprint"] ?? throw new ArgumentNullException("Missing configuration value for: AzureADCertThumbprint");
+                string azureAdDirectoryId = builder.Configuration["AzureKeyVault:AzureADDirectoryId"] ?? throw new ArgumentNullException("Missing configuration value for: AzureADDirectoryId");
+                string azureAdApplicationId = builder.Configuration["AzureKeyVault:AzureADApplicationId"] ?? throw new ArgumentNullException("Missing configuration value for: AzureADApplicationId");
+
+                using var x509Store = new X509Store(StoreLocation.CurrentUser);
+
+                x509Store.Open(OpenFlags.ReadOnly);
+
+                var x509Certificate = x509Store.Certificates
+                    .Find(X509FindType.FindByThumbprint, certThumbprint, validOnly: false)
+                    .OfType<X509Certificate2>()
+                    .Single();
 
                 builder.Configuration.AddAzureKeyVault(
-                    new Uri($"https://{keyVaultName}.vault.azure.net/"),
-                    new DefaultAzureCredential());
+                    new Uri($"https://{builder.Configuration["KeyVaultName"]}.vault.azure.net/"),
+                    new ClientCertificateCredential(azureAdDirectoryId, azureAdApplicationId, x509Certificate));
 
                 cosmosDbConnectionString = builder.Configuration["ConnectionString"] ?? throw new ArgumentNullException("Missing configuration value for: ConnectionString in Azure Key Vault.");
             }
