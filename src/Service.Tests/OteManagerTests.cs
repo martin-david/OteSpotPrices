@@ -45,7 +45,7 @@ namespace OtePrices.Tests
 
             var oteManager = new OteManager(cnbService, oteCrService, null);
             var result = await oteManager.GetOtePrices(DateOnly.FromDateTime(startDate), DateOnly.FromDateTime(endDate));
-            Assert.NotNull(result);
+            Assert.That(result, Is.Not.Null);
             Assert.That(result, Is.EqualTo(new List<OtePrice> {
                 new(new DateOnly(2023, 11, 13), new TimeOnly(1, 0), 1.85m) { Id = "2023-11-13T01:00:00.000Z" },
                 new(new DateOnly(2023, 11, 13), new TimeOnly(2, 0), 2.75m) { Id = "2023-11-13T02:00:00.000Z" },
@@ -85,7 +85,7 @@ namespace OtePrices.Tests
 
             var oteManager = new OteManager(cnbService, oteCrService, null);
             var result = await oteManager.GetOtePrices(date);
-            Assert.NotNull(result);
+            Assert.That(result, Is.Not.Null);
             await cnbService.Received(1).GetRate(date);
             await oteCrService.Received(1).GetDamPrice(date);
         }
