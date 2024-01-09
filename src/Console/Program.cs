@@ -1,4 +1,6 @@
-﻿using Azure.Identity;
+﻿using Azure.Extensions.AspNetCore.Configuration.Secrets;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,8 +13,8 @@ using Service;
 using Service.Infrastructure;
 using Service.Interfaces;
 using Service.Repository;
+using System.Diagnostics;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
 
 namespace OtePrices
 {
@@ -21,6 +23,10 @@ namespace OtePrices
         public static async Task Main(string[] args)
         {
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+
+            Debug.WriteLine("Test debug");
+            var azureKeyVaultPass = Environment.GetEnvironmentVariable("AzureKeyVaultClientSecret");
+            Debug.WriteLine(azureKeyVaultPass);
 
             // dotnet run k1=value1 -k2 value2 --alt3=value2 /alt4=value3 --alt5 value5 /alt6 value6
             // https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.configuration.commandlineconfigurationextensions.addcommandline
@@ -31,9 +37,17 @@ namespace OtePrices
                 .AddJsonFile($"appsettings.{builder.Environment}.json", true, true)
                 .AddUserSecrets<Program>(true, true);
 
+            Debug.WriteLine(string.Join(Environment.NewLine, args));
+
             RegisterCosmosDbConnectionString(builder);
 
-            builder.Services.AddLogging();
+            builder.Services.AddLogging(logging =>
+            logging
+                .AddDebug()
+                .AddConsole()
+                .AddConfiguration(builder.Configuration.GetSection("Logging"))
+                .SetMinimumLevel(LogLevel.Information));
+
             builder.Services.AddDistributedMemoryCache();
 
             builder.Services.AddHttpClient<ICnbService, CnbService>()
@@ -72,6 +86,9 @@ namespace OtePrices
                 endDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(1)); // we can obtain price for tomorrow at max
             }
 
+            logger.LogInformation($"StartDate: {startDate.ToShortDateString()}");
+            logger.LogInformation($"EndDate: {endDate.ToShortDateString()}");
+
             var otePrices = await oteManager.GetOtePrices(startDate, endDate);
             await oteManager.SaveOtePrices(otePrices);
 
@@ -87,22 +104,28 @@ namespace OtePrices
             if (builder.Environment.IsProduction())
             {
                 string keyVaultName = builder.Configuration["AzureKeyVault:KeyVaultName"] ?? throw new ArgumentNullException("Missing configuration value for: KeyVaultName");
+                string keyVaultClientSecret = builder.Configuration["OteSpotPrices:AzureKeyVaultClientSecret"] ?? throw new ArgumentNullException("Missing configuration value for: KeyVaultClientSecret");
                 string certThumbprint = builder.Configuration["AzureKeyVault:AzureADCertThumbprint"] ?? throw new ArgumentNullException("Missing configuration value for: AzureADCertThumbprint");
                 string azureAdDirectoryId = builder.Configuration["AzureKeyVault:AzureADDirectoryId"] ?? throw new ArgumentNullException("Missing configuration value for: AzureADDirectoryId");
                 string azureAdApplicationId = builder.Configuration["AzureKeyVault:AzureADApplicationId"] ?? throw new ArgumentNullException("Missing configuration value for: AzureADApplicationId");
 
-                using var x509Store = new X509Store(StoreLocation.CurrentUser);
+                //using var x509Store = new X509Store(StoreLocation.CurrentUser);
 
-                x509Store.Open(OpenFlags.ReadOnly);
+                //x509Store.Open(OpenFlags.ReadOnly);
 
-                var x509Certificate = x509Store.Certificates
-                    .Find(X509FindType.FindByThumbprint, certThumbprint, validOnly: false)
-                    .OfType<X509Certificate2>()
-                    .Single();
+                //var x509Certificate = x509Store.Certificates
+                //    .Find(X509FindType.FindByThumbprint, certThumbprint, validOnly: false)
+                //    .OfType<X509Certificate2>()
+                //    .Single();
 
-                builder.Configuration.AddAzureKeyVault(
-                    new Uri($"https://{builder.Configuration["KeyVaultName"]}.vault.azure.net/"),
-                    new ClientCertificateCredential(azureAdDirectoryId, azureAdApplicationId, x509Certificate));
+                string azureKeyVaultEndpoint = $"https://{keyVaultName}.vault.azure.net/";
+                var credential = new ClientSecretCredential(azureAdDirectoryId, azureAdApplicationId, keyVaultClientSecret);
+                var secretClient = new SecretClient(new Uri(azureKeyVaultEndpoint), credential);
+                builder.Configuration.AddAzureKeyVault(secretClient, new AzureKeyVaultConfigurationOptions());
+
+                //builder.Configuration.AddAzureKeyVault(
+                //    new Uri(azureKeyVaultEndpoint),
+                //    new ClientCertificateCredential(azureAdDirectoryId, azureAdApplicationId, x509Certificate));
 
                 cosmosDbConnectionString = builder.Configuration["ConnectionString"] ?? throw new ArgumentNullException("Missing configuration value for: ConnectionString in Azure Key Vault.");
             }

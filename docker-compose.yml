@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  console:
+    image: otespotprices
+    build:
+      dockerfile: ./src/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+    volumes:
+      # map the dotnet user-secret folder
+      - $APPDATA/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
