@@ -21,3 +21,4 @@ FROM mcr.microsoft.com/dotnet/runtime:8.0
 WORKDIR /app
 COPY --from=publish /app .
 ENTRYPOINT ["dotnet", "Console.dll"]
+CMD ["--startDate=2023-01-01", "--endDate=2023-12-31"]

@@ -9,6 +9,7 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <PublishRelease>true</PublishRelease>
     <DockerfileFile>..\Dockerfile</DockerfileFile>
+    <DockerfileRunArguments>-v "$(AppData)/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro"</DockerfileRunArguments>
   </PropertyGroup>
 
   <ItemGroup>
